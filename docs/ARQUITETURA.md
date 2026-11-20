@@ -78,7 +78,7 @@ apd-validador/
 | γ em δ(q, a, X) = (p, γ) | tupla `empilha`; `empilha[0]` vira o **novo topo**; `()` significa só desempilhar |
 | Marcador de fim de entrada | símbolo `"$"`, sempre o último token da fita (constante `MARCADOR_FIM`) |
 | Símbolo inicial da pilha | `"Z0"`, que nunca é desempilhado nos nossos autômatos |
-| Critério de aceitação | **por estado final**: aceita se, após consumir a fita inteira (incluindo `$`), o estado atual ∈ F |
+| Critério de aceitação | **por estado final**: aceita assim que, com a fita inteira consumida (incluindo `$`), o APD estiver num estado ∈ F (definição: (q0, w, Z0) ⊢* (p, ε, α) com p ∈ F) |
 
 Exemplo: δ(q0, `<div>`, BODY) = (q0, DIV BODY) significa: "no estado q0, lendo `<div>`
 com BODY no topo, vá para q0 e troque BODY por DIV BODY", ou seja, **empilha DIV**.
@@ -226,7 +226,9 @@ class APD:
       rejeitar com `LIMITE_DE_PASSOS`: "Limite de N ε-transições seguidas excedido em q (possível laço infinito)."
       Só ε-transições podem causar laço infinito num APD, pois cada leitura consome um token;
       por isso o limite não restringe o tamanho de entradas válidas.
-3. Aceita se o estado atual ∈ F. Senão, rejeita com a `Falha` de
+3. Aceita assim que, com a fita inteira consumida, o APD estiver num estado ∈ F
+   (definição: (q0, w, Z0) ⊢* (p, ε, α) com p ∈ F); essa verificação é feita no início
+   de cada iteração do passo 2, antes de tentar ε. Senão, rejeita com a `Falha` de
    `diagnosticar(apd, configuracao, None)`, que é o caso `ESTADO_NAO_FINAL`.
 
 `apd/carregador.py`:
