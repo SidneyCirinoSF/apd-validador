@@ -8,9 +8,12 @@ O programa lê um texto, transforma esse texto em uma fita de símbolos e execut
 M = (Q, Σ, Γ, δ, q0, Z0, F) sobre ela, mostrando **a pilha a cada símbolo consumido**
 (empilha, desempilha ou mantém) e, quando a entrada é rejeitada, **o motivo exato da falha**.
 
-> **Status: em desenvolvimento.** Este é o commit inicial de documentação. O código
-> ainda não existe; os comandos abaixo passam a funcionar à medida que as tarefas de
-> [docs/TAREFAS.md](docs/TAREFAS.md) forem concluídas.
+> **Status: em desenvolvimento.** O núcleo já está na `main`: contratos de dados
+> (`apd/modelos.py`), classe APD (`apd/automato.py`) e carregador (`apd/carregador.py`),
+> com testes. O tokenizador, os JSON dos autômatos, o diagnóstico, a CLI e a GUI ainda
+> não existem, então os comandos `python -m apd` abaixo **ainda não funcionam**; eles
+> passam a funcionar à medida que as tarefas de [docs/TAREFAS.md](docs/TAREFAS.md) forem
+> concluídas.
 
 ## O que o APD valida
 
@@ -47,8 +50,9 @@ A definição formal completa (estados, alfabetos e a função de transição δ
 
 ## Como executar
 
-> Os comandos abaixo seguem o contrato de [docs/ARQUITETURA.md](docs/ARQUITETURA.md) §10
-> e ficam disponíveis quando as tarefas correspondentes forem concluídas.
+> **Ainda não disponível.** Os comandos `python -m apd` abaixo seguem o contrato de
+> [docs/ARQUITETURA.md](docs/ARQUITETURA.md) §10 e ficam disponíveis quando a CLI (#6) e
+> a GUI (#8) forem concluídas.
 
 ```bash
 git clone https://github.com/SidneyCirinoSF/apd-validador.git
@@ -78,7 +82,8 @@ No Windows, se `python` não for reconhecido, use `py` no lugar (ex.: `py -m apd
 
 ## Como rodar os testes
 
-Os testes usam `unittest`, da biblioteca padrão:
+Os testes usam `unittest`, da biblioteca padrão, e já rodam (hoje cobrem os modelos,
+a classe APD e o carregador):
 
 ```bash
 python -m unittest discover -s tests -v
@@ -160,11 +165,11 @@ Quadro Kanban: aba Projects do repositório.
 
 | Integrante | GitHub | Responsabilidade |
 |---|---|---|
-| Sidney (líder) | [@SidneyCirinoSF](https://github.com/SidneyCirinoSF) | Contratos (`modelos.py`), núcleo do APD (`automato.py`, `carregador.py`) e integração final |
-| Joalison | [@Joalison7](https://github.com/Joalison7) | Gerador e JSON dos autômatos; montagem do Prezi |
-| Pedro Valença | [@PedroValencav2](https://github.com/PedroValencav2) | Tokenizador e diagnóstico de falhas |
-| Fabrício | [@Cibr0](https://github.com/Cibr0) | Interface de terminal (CLI), exemplos e testes de integração |
-| Wagner Daniel | [@WagnerDaniell](https://github.com/WagnerDaniell) | Interface gráfica tkinter e roteiro da demonstração |
+| Sidney (líder) | [@SidneyCirinoSF](https://github.com/SidneyCirinoSF) | Contratos (`modelos.py`) e núcleo do APD (`automato.py`, `carregador.py`), já concluídos; diagnóstico de falhas (`diagnostico.py`); interface de terminal (`cli.py`, `__main__.py`); roteiro da demonstração; Prezi; teste de integração e integração final |
+| Joalison | [@Joalison7](https://github.com/Joalison7) | Gerador e JSON dos autômatos |
+| Pedro Valença | [@PedroValencav2](https://github.com/PedroValencav2) | Exemplos de entrada e resultados esperados (`exemplos/`) |
+| Fabrício | [@Cibr0](https://github.com/Cibr0) | Interface gráfica tkinter (`gui.py`) |
+| Wagner Daniel | [@WagnerDaniell](https://github.com/WagnerDaniell) | Tokenizador (`tokenizador.py`) |
 
 ## Disciplina
 

@@ -39,21 +39,21 @@ apd-validador/
 ├── docs/                      documentação (este arquivo, definição formal etc.)
 ├── apd/                       pacote Python principal
 │   ├── __init__.py
-│   ├── __main__.py            ponto de entrada: python -m apd        (Fabrício)
+│   ├── __main__.py            ponto de entrada: python -m apd        (Sidney)
 │   ├── modelos.py             dataclasses e exceções (contratos)      (Sidney)
 │   ├── automato.py            classe APD e execução                    (Sidney)
 │   ├── carregador.py          leitura e validação dos JSON             (Sidney)
-│   ├── tokenizador.py         texto → fita de tokens                   (Pedro)
-│   ├── diagnostico.py         motivo exato da rejeição                 (Pedro)
-│   ├── cli.py                 interface de terminal                    (Fabrício)
-│   └── gui.py                 interface gráfica tkinter                (Wagner)
+│   ├── tokenizador.py         texto → fita de tokens                   (Wagner)
+│   ├── diagnostico.py         motivo exato da rejeição                 (Sidney)
+│   ├── cli.py                 interface de terminal                    (Sidney)
+│   └── gui.py                 interface gráfica tkinter                (Fabrício)
 ├── automatos/
 │   ├── xml_tags.json          APD das tags XML/HTML                    (Joalison)
 │   └── expressoes.json        APD de ( ) [ ] { }                       (Joalison)
 ├── ferramentas/
 │   └── gerar_automatos.py     gera os JSON a partir da definição       (Joalison)
 ├── exemplos/
-│   ├── xml/                   entradas válidas e inválidas             (Fabrício)
+│   ├── xml/                   entradas válidas e inválidas             (Pedro)
 │   └── expressoes/
 └── tests/                     testes com unittest (biblioteca padrão)
 ```
