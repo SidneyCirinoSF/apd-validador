@@ -8,6 +8,11 @@ escrito pelo usuário e essa fita formal:
 * ``tokenizar_xml`` transforma um documento XML/HTML na sequência de aberturas
   ``<nome>``, fechamentos ``</nome>``, tags auto-fechadas ``<nome/>`` e trechos
   ``#texto``, descartando espaços em branco e comentários ``<!-- ... -->``;
+* ``tokenizar_expressao`` transforma uma expressão algébrica em delimitadores
+  ``(``, ``)``, ``[``, ``]``, ``{``, ``}`` e operandos ``x`` (trechos contínuos de
+  outros caracteres não brancos);
+* ``tokenizar(texto, tipo)`` despacha para ``"xml"`` ou ``"expressao"`` conforme o
+  campo ``tokenizador`` do autômato carregado;
 * toda fita gerada termina obrigatoriamente com ``Token("$", "", linha, coluna)``
   (constante ``MARCADOR_FIM``), permitindo que o APD reconheça o fim da entrada de
   forma determinística por estado final, sem precisar de ε-transições que violariam
@@ -43,9 +48,10 @@ from __future__ import annotations
 
 from apd.modelos import MARCADOR_FIM, ErroLexico, Token
 
-__all__ = ["tokenizar_xml"]
+__all__ = ["tokenizar", "tokenizar_expressao", "tokenizar_xml"]
 
 _PONTUACAO_NOME_TAG = frozenset("-_:.")
+_DELIMITADORES_EXPRESSAO = frozenset("()[]{}")
 
 
 def tokenizar_xml(texto: str) -> list[Token]:
@@ -127,6 +133,103 @@ def tokenizar_xml(texto: str) -> list[Token]:
 
     tokens.append(Token(MARCADOR_FIM, "", linha, coluna))
     return tokens
+
+
+def tokenizar_expressao(texto: str) -> list[Token]:
+    """Converte uma expressão em uma fita de ``Token`` para o APD de delimitadores.
+
+    Mapeia o texto bruto para o alfabeto Σ = {``(``, ``)``, ``[``, ``]``, ``{``,
+    ``}``, ``x``, ``$``} (docs/DEFINICAO_FORMAL.md §5):
+
+    * cada delimitador ``(``, ``)``, ``[``, ``]``, ``{`` ou ``}`` vira um token cujo
+      ``simbolo`` e ``lexema`` são o próprio caractere;
+    * cada trecho contínuo de caracteres que não são delimitadores nem espaços
+      (como ``2+3*a``) é abstraído em um único operando ``Token("x", lexema, ...)``,
+      pois a gramática livre de contexto do autômato avalia apenas o balanceamento
+      dos delimitadores;
+    * espaços em branco (``str.isspace()``: espaço, tabulação e quebra de linha) são
+      ignorados, mas encerram um trecho ``x`` em andamento;
+    * não há erro léxico em expressões: qualquer caractere fora dos delimitadores e
+      espaços compõe um operando ``x``;
+    * a fita termina sempre com ``Token("$", "", linha, coluna)`` logo após o último
+      caractere do texto.
+    """
+    texto = _normalizar_quebras(texto)
+    tokens: list[Token] = []
+    tamanho = len(texto)
+    i = 0
+    linha = 1
+    coluna = 1
+
+    inicio_operando: int | None = None
+    linha_operando = 1
+    coluna_operando = 1
+
+    while i < tamanho:
+        caractere = texto[i]
+
+        if caractere in _DELIMITADORES_EXPRESSAO:
+            if inicio_operando is not None:
+                tokens.append(
+                    Token(
+                        "x",
+                        texto[inicio_operando:i],
+                        linha_operando,
+                        coluna_operando,
+                    )
+                )
+                inicio_operando = None
+            tokens.append(Token(caractere, caractere, linha, coluna))
+        elif caractere.isspace():
+            if inicio_operando is not None:
+                tokens.append(
+                    Token(
+                        "x",
+                        texto[inicio_operando:i],
+                        linha_operando,
+                        coluna_operando,
+                    )
+                )
+                inicio_operando = None
+        else:
+            if inicio_operando is None:
+                inicio_operando = i
+                linha_operando = linha
+                coluna_operando = coluna
+
+        linha, coluna = _avancar_posicao(caractere, linha, coluna)
+        i += 1
+
+    if inicio_operando is not None:
+        tokens.append(
+            Token(
+                "x",
+                texto[inicio_operando:tamanho],
+                linha_operando,
+                coluna_operando,
+            )
+        )
+
+    tokens.append(Token(MARCADOR_FIM, "", linha, coluna))
+    return tokens
+
+
+def tokenizar(texto: str, tipo: str) -> list[Token]:
+    """Seleciona o analisador léxico adequado (``"xml"`` ou ``"expressao"``).
+
+    Usada pelas interfaces (CLI e GUI) a partir do atributo ``apd.tokenizador``
+    declarado no JSON do autômato, mantendo o desacoplamento entre a leitura da fita
+    e a simulação da relação de movimento ⊢ em ``APD.executar``.
+
+    Levanta ``ValueError`` se ``tipo`` não for ``"xml"`` nem ``"expressao"``.
+    """
+    if tipo == "xml":
+        return tokenizar_xml(texto)
+    if tipo == "expressao":
+        return tokenizar_expressao(texto)
+    raise ValueError(
+        f"Tipo de tokenizador inválido: {tipo!r}. Use 'xml' ou 'expressao'."
+    )
 
 
 # ---------------------------------------------------------------------- auxiliares
